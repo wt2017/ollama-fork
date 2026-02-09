@@ -150,8 +150,9 @@ COPY ml/backend/ggml/ggml ml/backend/ggml/ggml
 COPY x/imagegen/mlx x/imagegen/mlx
 COPY go.mod go.sum .
 COPY MLX_VERSION .
-RUN curl -fsSL https://golang.org/dl/go$(awk '/^go/ { print $2 }' go.mod).linux-$(case $(uname -m) in x86_64) echo amd64 ;; aarch64) echo arm64 ;; esac).tar.gz | tar xz -C /usr/local
+RUN curl -fsSL https://dl.google.com/go/go$(awk '/^go/ { print $2 }' go.mod).linux-$(case $(uname -m) in x86_64) echo amd64 ;; aarch64) echo arm64 ;; esac).tar.gz | tar xz -C /usr/local
 ENV PATH=/usr/local/go/bin:$PATH
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 RUN --mount=type=cache,target=/root/.ccache \
     cmake --preset 'MLX CUDA 13' -DBLAS_INCLUDE_DIRS=/usr/include/openblas -DLAPACK_INCLUDE_DIRS=/usr/include/openblas \
@@ -161,8 +162,9 @@ RUN --mount=type=cache,target=/root/.ccache \
 FROM base AS build
 WORKDIR /go/src/github.com/ollama/ollama
 COPY go.mod go.sum .
-RUN curl -fsSL https://golang.org/dl/go$(awk '/^go/ { print $2 }' go.mod).linux-$(case $(uname -m) in x86_64) echo amd64 ;; aarch64) echo arm64 ;; esac).tar.gz | tar xz -C /usr/local
+RUN curl -fsSL https://dl.google.com/go/go$(awk '/^go/ { print $2 }' go.mod).linux-$(case $(uname -m) in x86_64) echo amd64 ;; aarch64) echo arm64 ;; esac).tar.gz | tar xz -C /usr/local
 ENV PATH=/usr/local/go/bin:$PATH
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 COPY . .
 # Clone mlx-c headers for CGO (version from MLX_VERSION file)
